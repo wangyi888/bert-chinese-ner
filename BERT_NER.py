@@ -55,7 +55,7 @@ flags.DEFINE_bool(
 )
 
 flags.DEFINE_integer(
-    "max_seq_length", 128,
+    "max_seq_length", 400,
     "The maximum total input sequence length after WordPiece tokenization."
 )
 
@@ -77,7 +77,7 @@ flags.DEFINE_integer("predict_batch_size", 8, "Total batch size for predict.")
 
 flags.DEFINE_float("learning_rate", 5e-5, "The initial learning rate for Adam.")
 
-flags.DEFINE_float("num_train_epochs", 3.0, "Total number of training epochs to perform.")
+flags.DEFINE_float("num_train_epochs", 10.0, "Total number of training epochs to perform.")
 
 
 
@@ -152,8 +152,8 @@ class DataProcessor(object):
             labels = []
             for line in f:
                 contends = line.strip()
-                word = line.strip().split(' ')[0]
-                label = line.strip().split(' ')[-1]
+                word = line.strip().split('\t')[0]
+                label = line.strip().split('\t')[-1]
                 if contends.startswith("-DOCSTART-"):
                     words.append('')
                     continue
@@ -186,7 +186,13 @@ class NerProcessor(DataProcessor):
 
 
     def get_labels(self):
-        return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X","[CLS]","[SEP]"]
+        #return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X","[CLS]","[SEP]"]
+        return ['O', 'B-公私财物', 'I-公私财物', 'B-一般盗窃行为', 'I-一般盗窃行为', 'B-秘密窃取', 'I-秘密窃取',
+                'B-数额较大', 'I-数额较大', 'B-入户盗窃', 'I-入户盗窃', 'B-多次盗窃', 'I-多次盗窃', 'B-扒窃', 'I-扒窃',
+                'B-盗窃数额提取','I-盗窃数额提取', 'B-数额巨大', 'I-数额巨大', 'B-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全', 'I-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全',
+                'B-盗窃罪-共犯', 'I-盗窃罪-共犯', 'B-其他严重情节', 'I-其他严重情节', 'B-盗窃信用卡并使用', 'I-盗窃信用卡并使用', 'B-以非法占有为目的', 'I-以非法占有为目的',
+                'B-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微', 'I-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微',
+                'B-数额特别巨大', 'I-数额特别巨大', 'B-未成年人盗窃未遂或中止', 'I-未成年人盗窃未遂或中止', 'X', '[CLS]', '[SEP]']
 
     def _create_example(self, lines, set_type):
         examples = []
@@ -374,7 +380,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 11])
+        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 39])
         # mask = tf.cast(input_mask,tf.float32)
         # loss = tf.contrib.seq2seq.sequence_loss(logits,labels,mask)
         # return (loss, logits, predict)
@@ -439,9 +445,10 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             def metric_fn(per_example_loss, label_ids, logits):
             # def metric_fn(label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                precision = tf_metrics.precision(label_ids,predictions,11,[2,3,4,5,6,7],average="macro")
-                recall = tf_metrics.recall(label_ids,predictions,11,[2,3,4,5,6,7],average="macro")
-                f = tf_metrics.f1(label_ids,predictions,11,[2,3,4,5,6,7],average="macro")
+                pos_indices = [i for i in range(2,39-4)]
+                precision = tf_metrics.precision(label_ids,predictions,39,pos_indices,average="macro")
+                recall = tf_metrics.recall(label_ids,predictions,39,pos_indices,average="macro")
+                f = tf_metrics.f1(label_ids,predictions,39,pos_indices,average="macro")
                 #
                 return {
                     "eval_precision":precision,
