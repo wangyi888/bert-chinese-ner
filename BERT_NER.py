@@ -187,17 +187,19 @@ class NerProcessor(DataProcessor):
 
     def get_labels(self):
         #return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X","[CLS]","[SEP]"]
-        return ['O', 'B-公私财物', 'I-公私财物', 'B-一般盗窃行为', 'I-一般盗窃行为', 'B-秘密窃取', 'I-秘密窃取',
-                'B-数额较大', 'I-数额较大', 'B-入户盗窃', 'I-入户盗窃', 'B-多次盗窃', 'I-多次盗窃', 'B-扒窃', 'I-扒窃',
-                'B-盗窃数额提取','I-盗窃数额提取', 'B-数额巨大', 'I-数额巨大', 'B-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全', 'I-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全',
-                'B-盗窃罪-共犯', 'I-盗窃罪-共犯', 'B-其他严重情节', 'I-其他严重情节', 'B-盗窃信用卡并使用', 'I-盗窃信用卡并使用', 'B-以非法占有为目的', 'I-以非法占有为目的',
-                'B-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微', 'I-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微',
-                'B-数额特别巨大', 'I-数额特别巨大', 'B-未成年人盗窃未遂或中止', 'I-未成年人盗窃未遂或中止','B-金额_盗窃金额','I-金额_盗窃金额',
-                'B-偷砍他人房前屋后、自留地种植的零星树木','I-偷砍他人房前屋后、自留地种植的零星树木',
-                'B-偷拿家庭成员或者近亲属的财物，追究刑事责任的','I-偷拿家庭成员或者近亲属的财物，追究刑事责任的',
-                'B-以牟利为目的，盗接他人通信线路、复制他人电信码号','I-以牟利为目的，盗接他人通信线路、复制他人电信码号',
-                'B-盗窃文物','I-盗窃文物','B-携带凶器盗窃','I-携带凶器盗窃',
-                 'B-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现代重要史迹和代表性建筑等）其他不可移动文物','I-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现代重要史迹和代表性建筑等）其他不可移动文物','B-未成年人盗窃数额较大，未超过三次，如实供述积极退赃，具有其他轻微情节','I-未成年人盗窃数额较大，未超过三次，如实供述积极退赃，具有其他轻微情节','X', '[CLS]', '[SEP]']
+        return ['O', 'B-盗窃文物', 'B-偷拿家庭成员或者近亲属的财物，追究刑事责任的', 'B-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现代重要史迹和代表性建筑等）其他不可移动文物', 'B-盗窃罪-共犯', 'B-将国家、集体、他人所有并已经伐倒的树木窃为己有', 'B-数额较大', 'B-多次盗窃', 'B-数额巨大', 'B-邮政工作人员窃取邮件财物', 'I-公私财物', 'I-采用破坏性手段盗窃公私财物，造成其他财物损毁', 'B-以非法占有为目的', 'I-以非法占有为目的', 'B-盗窃数额提取', 'I-数额巨大', 'I-未成年人盗窃未遂或中止', 'I-数额特别巨大', 'B-未成年人盗窃数额较大，未超过三次，如实供述积极退赃，具有其他轻微情节',
+                'I-盗窃文物', 'I-盗窃罪-共犯', 'I-多次盗窃', 'B-入户盗窃', 'B-偷拿家庭成员或近亲属财物，获得谅解', 'B-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全', 'B-金额_盗窃金额', 'B-未成年人盗窃自己家庭或者近亲属财物', 'I-偷砍他人房前屋后、自留地种植的零星树木','B-采用破坏性手段盗窃公私财物，造成其他财物损毁', 'B-一般盗窃行为', 'I-金额_盗窃金额', 'I-秘密窃取', 'B-以牟利为目的，盗接他人通信线路、复制他人电信码号',
+                'I-未成年人盗窃数额较大，未超过三次，如实供述积极退赃，具有其他轻微情节', 'B-携带凶器盗窃', 'I-一般盗窃行为',
+                'B-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微', 'I-偷拿家庭成员或者近亲属的财物，追究刑事责任的',
+                'I-将国家、集体、他人所有并已经伐倒的树木窃为己有', 'I-未成年人盗窃自己家庭或者近亲属财物', 'I-盗窃数额提取', 'I-以牟利为目的，盗接他人通信线路、复制他人电信码号',
+                'I-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现>代重要史迹和代表性建筑等）其他不可移动文物',
+                'I-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现代重要史迹和代表性建筑等）其他不可移动文物', 'B-公私财物', 'I-未成年人起次要或辅助作用，或被胁迫盗窃数额较大，未超过三次，如实供述积极退赃',
+                'I-其他严重情节', 'B-盗窃信用卡并使用', 'B-其他严重情节', 'I-数额较大', 'I-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微',
+                'B-未成年人起次要或辅助作用，或被胁迫盗窃数额较大，未超过三次，如实供述积极退赃', 'I-盗窃信用卡并使用', 'I-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全',
+                'I-偷拿家庭成员或近亲属财物，获得谅解', 'B-数额特别巨大', 'B-偷砍他人房前屋后、自留地种植的零星树木', 'B-未成年人盗窃未遂或中止', 'I-邮政工作人员窃取邮件财物',
+                'B-秘密窃取', 'B-扒窃', 'I-入户盗窃', 'I-携带凶器盗窃', 'I-扒窃',"X","[CLS]","[SEP]"]
+
+
 
     def _create_example(self, lines, set_type):
         examples = []
@@ -385,7 +387,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 41])
+        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 68])
         # mask = tf.cast(input_mask,tf.float32)
         # loss = tf.contrib.seq2seq.sequence_loss(logits,labels,mask)
         # return (loss, logits, predict)
@@ -450,10 +452,10 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             def metric_fn(per_example_loss, label_ids, logits):
             # def metric_fn(label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                pos_indices = [i for i in range(2,41-4)]
-                precision = tf_metrics.precision(label_ids,predictions,41,pos_indices,average="macro")
-                recall = tf_metrics.recall(label_ids,predictions,41,pos_indices,average="macro")
-                f = tf_metrics.f1(label_ids,predictions,41,pos_indices,average="macro")
+                pos_indices = [i for i in range(2,68-4)]
+                precision = tf_metrics.precision(label_ids,predictions,68,pos_indices,average="macro")
+                recall = tf_metrics.recall(label_ids,predictions,68,pos_indices,average="macro")
+                f = tf_metrics.f1(label_ids,predictions,68,pos_indices,average="macro")
                 #
                 return {
                     "eval_precision":precision,
