@@ -70,7 +70,7 @@ flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
 
 flags.DEFINE_bool("do_predict", False,"Whether to run the model in inference mode on the test set.")
 
-flags.DEFINE_integer("train_batch_size", 32, "Total batch size for training.")
+flags.DEFINE_integer("train_batch_size", 6, "Total batch size for training.")
 
 flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
 
@@ -173,17 +173,17 @@ class DataProcessor(object):
 class NerProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "train.txt")), "train"
+            self._read_data(os.path.join(data_dir, "thief_train.txt")), "train"
         )
 
     def get_dev_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "dev.txt")), "dev"
+            self._read_data(os.path.join(data_dir, "thief_test.txt")), "dev"
         )
 
     def get_test_examples(self,data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "test.txt")), "test")
+            self._read_data(os.path.join(data_dir, "thief_test.txt")), "test")
 
 
     def get_labels(self):
@@ -390,18 +390,20 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
         logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 68])
+
         log_likelihood, transition_params = crf_log_likelihood(inputs=logits,tag_indices=labels,sequence_lengths=sequence_lengths)
         loss = -tf.reduce_mean(log_likelihood)
         predict,best_score = crf_decode(potentials=logits,transition_params=transition_params,sequence_length=sequence_lengths)
+
         # mask = tf.cast(input_mask,tf.float32)
         # loss = tf.contrib.seq2seq.sequence_loss(logits,labels,mask)
         # return (loss, logits, predict)
         ##########################################################################
-        log_probs = tf.nn.log_softmax(logits, axis=-1)
+        #log_probs = tf.nn.log_softmax(logits, axis=-1)
         #one_hot_labels = tf.one_hot(labels, depth=num_labels, dtype=tf.float32)
         #per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
         #loss = tf.reduce_sum(per_example_loss)
-        probabilities = tf.nn.softmax(logits, axis=-1)
+        #probabilities = tf.nn.softmax(logits, axis=-1)
         #predict = tf.argmax(probabilities,axis=-1)
         return (loss,logits,predict)
         ##########################################################################
@@ -456,6 +458,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             
             def metric_fn(label_ids, logits):
             # def metric_fn(label_ids, logits):
+
                 #predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
                 pos_indices = [i for i in range(2,68-4)]
                 precision = tf_metrics.precision(label_ids,predicts,68,pos_indices,average="macro")
