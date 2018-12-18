@@ -183,7 +183,7 @@ class NerProcessor(DataProcessor):
 
     def get_test_examples(self,data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "thief_test.txt")), "test")
+            self._read_data(os.path.join(data_dir, "thief_predict.txt")), "test")
 
 
     def get_labels(self):
