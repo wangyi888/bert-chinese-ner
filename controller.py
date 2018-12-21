@@ -2,6 +2,9 @@
 '''
 author:wangyi
 '''
+import tornado.httpserver
+import tornado.ioloop
+import tornado.options
 import tornado.web
 from tornado.options import define, options
 import os
@@ -11,21 +14,26 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('index.html')
 
-class ResultHandler(tornado.web.RedirectHandler):
+class ResultHandler(tornado.web.RequestHandler):
     def post(self):
         content = self.get_argument('content').strip()
+        if content[-1]!='。':
+            content += '。'
         type = self.get_argument('type').strip()
         demo_sent = list(content)
-        predict_in = open('./data/test_predict.txt','w',encoding='utf-8')
+        predict_in = open('./data/thief_predict.txt','w',encoding='utf-8')
         for word in content:
+            #print(word)
             predict_in.write(word+'\t'+'O'+'\n')
             predict_in.flush()
+        predict_in.write('\n')
+        predict_in.flush()
         print('predict input_file created!')
         command = 'CUDA_VISIBLE_DEVICES="3" ' \
                   'python BERT_NER.py --data_dir=data/ ' \
                   '--bert_config_file=checkpoint/bert_config.json ' \
                   '--init_checkpoint=checkpoint/model.ckpt-1000000 --vocab_file=vocab.txt ' \
-                  '--output_dir=./output/result_dir/ --do_train=False --do_predict=True'
+                  '--output_dir=./output/result_dir/ --predict_batch_size=1 --do_train=False --do_predict=True'
         print(command)
         os.system(command)
         print('predict result_file is created!')
@@ -64,3 +72,4 @@ if __name__ == '__main__':
     http_server = tornado.httpserver.HTTPServer(app)
     http_server.listen(options.port)
     tornado.ioloop.IOLoop.instance().start()
+    #print('服务已启动')

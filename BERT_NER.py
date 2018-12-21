@@ -153,12 +153,16 @@ class DataProcessor(object):
             labels = []
             for line in f:
                 contends = line.strip()
+                print('contends',contends)
                 word = line.strip().split('\t')[0]
                 label = line.strip().split('\t')[-1]
+                #print('label',label)
                 if contends.startswith("-DOCSTART-"):
                     words.append('')
                     continue
+                #print('-1:',words[-1])
                 if len(contends) == 0 and words[-1] == '。':
+                    print('进来了吗')
                     l = ' '.join([label for label in labels if len(label) > 0])
                     w = ' '.join([word for word in words if len(word) > 0])
                     lines.append([l, w])
@@ -167,6 +171,8 @@ class DataProcessor(object):
                     continue
                 words.append(word)
                 labels.append(label)
+            #print('-1:',words[-1])
+            print('lines',lines)
             return lines
 
 
@@ -603,7 +609,7 @@ def main(_):
         if os.path.exists(token_path):
             os.remove(token_path)
         predict_examples = processor.get_test_examples(FLAGS.data_dir)
-
+        #print(predict_examples)
         predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
         filed_based_convert_examples_to_features(predict_examples, label_list,
                                                 FLAGS.max_seq_length, tokenizer,
