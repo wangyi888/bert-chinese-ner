@@ -11,7 +11,8 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('index.html')
 
-class ResultHandler(tornado.web.RedirectHandler):
+class ResultHandler(tornado.web.RequestHandler):
+
     def post(self):
         content = self.get_argument('content').strip()
         type = self.get_argument('type').strip()
