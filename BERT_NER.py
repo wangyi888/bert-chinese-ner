@@ -306,7 +306,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     assert len(label_ids) == max_seq_length
     #assert len(label_mask) == max_seq_length
     label_ids = label_ids[1:len(label_ids)-1]
-    print(len(label_ids))
+    #print(len(label_ids))
     if ex_index < 5:
         tf.logging.info("*** Example ***")
         tf.logging.info("guid: %s" % (example.guid))
@@ -448,6 +448,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         input_mask = features["input_mask"]
         segment_ids = features["segment_ids"]
         label_ids = features["label_ids"]
+        label_ids = label_ids[:,1:label_ids.shape[1]-1]
+        label_ids = tf.FixedLenFeature([label_ids.shape[0]],tf.int64)
+        print('xxxxx',label_ids.shape)
         #label_mask = features["label_mask"]
         is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
