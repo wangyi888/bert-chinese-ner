@@ -305,8 +305,8 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     assert len(segment_ids) == max_seq_length
     assert len(label_ids) == max_seq_length
     #assert len(label_mask) == max_seq_length
-    label_ids = label_ids[1:len(label_ids)-1]
-    print(len(label_ids))
+    #label_ids = label_ids[1:len(label_ids)-1]
+    #print(len(label_ids))
     if ex_index < 5:
         tf.logging.info("*** Example ***")
         tf.logging.info("guid: %s" % (example.guid))
@@ -400,7 +400,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
     sequence_lengths -= 2
     output_layer = model.get_sequence_output()
     output_layer = output_layer[:,1:(output_layer.get_shape().as_list()[1])-1,:]
-    
+    labels = labels[:,1:labels.get_shape().as_list()[1]-1]
 
     print('来了老弟',output_layer.shape)
     hidden_size = output_layer.shape[-1].value
@@ -448,6 +448,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         input_mask = features["input_mask"]
         segment_ids = features["segment_ids"]
         label_ids = features["label_ids"]
+        #label_ids = label_ids[:,1:label_ids.shape[1]-1]
+        #print()
         #label_mask = features["label_mask"]
         is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
