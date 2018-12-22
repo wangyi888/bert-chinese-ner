@@ -179,12 +179,12 @@ class DataProcessor(object):
 class NerProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "merge_train.txt")), "train"
+            self._read_data(os.path.join(data_dir, "train.txt")), "train"
         )
 
     def get_dev_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "merge_test.txt")), "dev"
+            self._read_data(os.path.join(data_dir, "test.txt")), "dev"
         )
 
     def get_test_examples(self,data_dir):
