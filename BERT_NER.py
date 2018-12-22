@@ -305,7 +305,8 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     assert len(segment_ids) == max_seq_length
     assert len(label_ids) == max_seq_length
     #assert len(label_mask) == max_seq_length
-    
+    label_ids = label_ids[1:len(label_ids)-1]
+    print(len(label_ids))
     if ex_index < 5:
         tf.logging.info("*** Example ***")
         tf.logging.info("guid: %s" % (example.guid))
