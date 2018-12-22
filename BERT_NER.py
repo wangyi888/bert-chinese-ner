@@ -56,7 +56,7 @@ flags.DEFINE_bool(
 )
 
 flags.DEFINE_integer(
-    "max_seq_length", 400,
+    "max_seq_length", 512,
     "The maximum total input sequence length after WordPiece tokenization."
 )
 
@@ -78,7 +78,7 @@ flags.DEFINE_integer("predict_batch_size", 8, "Total batch size for predict.")
 
 flags.DEFINE_float("learning_rate", 5e-5, "The initial learning rate for Adam.")
 
-flags.DEFINE_float("num_train_epochs", 10.0, "Total number of training epochs to perform.")
+flags.DEFINE_float("num_train_epochs", 80.0, "Total number of training epochs to perform.")
 
 
 
@@ -153,7 +153,7 @@ class DataProcessor(object):
             labels = []
             for line in f:
                 contends = line.strip()
-                print('contends',contends)
+                #print('contends',contends)
                 word = line.strip().split('\t')[0]
                 label = line.strip().split('\t')[-1]
                 #print('label',label)
@@ -162,7 +162,7 @@ class DataProcessor(object):
                     continue
                 #print('-1:',words[-1])
                 if len(contends) == 0 and words[-1] == '。':
-                    print('进来了吗')
+                    #print('进来了吗')
                     l = ' '.join([label for label in labels if len(label) > 0])
                     w = ' '.join([word for word in words if len(word) > 0])
                     lines.append([l, w])
@@ -172,19 +172,19 @@ class DataProcessor(object):
                 words.append(word)
                 labels.append(label)
             #print('-1:',words[-1])
-            print('lines',lines)
+            #print('lines',lines)
             return lines
 
 
 class NerProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "thief_train.txt")), "train"
+            self._read_data(os.path.join(data_dir, "merge_train.txt")), "train"
         )
 
     def get_dev_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "thief_test.txt")), "dev"
+            self._read_data(os.path.join(data_dir, "merge_test.txt")), "dev"
         )
 
     def get_test_examples(self,data_dir):
@@ -244,7 +244,7 @@ def write_tokens(tokens,mode):
 
 def convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer,mode):
     label_map = {}
-    for (i, label) in enumerate(label_list,1):
+    for (i, label) in enumerate(label_list,0):
         label_map[label] = i
     with open('./output/label2id.pkl','wb') as w:
         pickle.dump(label_map,w)
@@ -399,7 +399,9 @@ def create_model(bert_config, is_training, input_ids, input_mask,
     sequence_lengths -= 2
     output_layer = model.get_sequence_output()
     output_layer = output_layer[:,1:(output_layer.get_shape().as_list()[1])-1,:]
+    
 
+    print('来了老弟',output_layer.shape)
     hidden_size = output_layer.shape[-1].value
 
     output_weight = tf.get_variable(
