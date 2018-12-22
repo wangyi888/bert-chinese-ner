@@ -281,7 +281,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         ntokens.append(token)
         segment_ids.append(0)
         label_ids.append(label_map[labels[i]])
-    ntokens.append("[SEP]")
+    #ntokens.append("[SEP]")
     segment_ids.append(0)
     # append("O") or append("[SEP]") not sure!
     # label_ids.append(label_map["[SEP]"])
@@ -289,7 +289,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     input_ids = tokenizer.convert_tokens_to_ids(ntokens)
     input_mask = [1] * len(input_ids)
     #label_mask = [1] * len(input_ids)
-    while len(input_ids) < max_seq_length:
+    while len(input_ids) < max_seq_length-1:
         input_ids.append(0)
         input_mask.append(0)
         segment_ids.append(0)
@@ -299,13 +299,14 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         ntokens.append("**NULL**")
         #label_mask.append(0)
     # print(len(input_ids))
+    ntokens.append("[SEP]")
     label_ids.append(label_map["O"])
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length
     assert len(label_ids) == max_seq_length
     #assert len(label_mask) == max_seq_length
-    label_ids = label_ids[1:len(label_ids)-1]
+    #label_ids = label_ids[1:len(label_ids)-1]
     #print(len(label_ids))
     if ex_index < 5:
         tf.logging.info("*** Example ***")
@@ -400,7 +401,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
     sequence_lengths -= 2
     output_layer = model.get_sequence_output()
     output_layer = output_layer[:,1:(output_layer.get_shape().as_list()[1])-1,:]
-    
+    labels = labels[:,1:labels.get_shape().as_list()[1]-1]
 
     print('来了老弟',output_layer.shape)
     hidden_size = output_layer.shape[-1].value
@@ -448,9 +449,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         input_mask = features["input_mask"]
         segment_ids = features["segment_ids"]
         label_ids = features["label_ids"]
-        label_ids = label_ids[:,1:label_ids.shape[1]-1]
-        label_ids = tf.FixedLenFeature([label_ids.shape[0]],tf.int64)
-        print('xxxxx',label_ids.shape)
+        #label_ids = label_ids[:,1:label_ids.shape[1]-1]
+        #print()
         #label_mask = features["label_mask"]
         is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
