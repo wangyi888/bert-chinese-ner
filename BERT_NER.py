@@ -285,7 +285,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     segment_ids.append(0)
     # append("O") or append("[SEP]") not sure!
     # label_ids.append(label_map["[SEP]"])
-    label_ids.append(label_map["O"])
+
     input_ids = tokenizer.convert_tokens_to_ids(ntokens)
     input_mask = [1] * len(input_ids)
     #label_mask = [1] * len(input_ids)
@@ -299,12 +299,13 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         ntokens.append("**NULL**")
         #label_mask.append(0)
     # print(len(input_ids))
+    label_ids.append(label_map["O"])
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length
     assert len(label_ids) == max_seq_length
     #assert len(label_mask) == max_seq_length
-
+    
     if ex_index < 5:
         tf.logging.info("*** Example ***")
         tf.logging.info("guid: %s" % (example.guid))
@@ -414,7 +415,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, num_labels])
+        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length-2, num_labels])
 
         log_likelihood, transition_params = crf_log_likelihood(inputs=logits,tag_indices=labels,sequence_lengths=sequence_lengths)
         loss = -tf.reduce_mean(log_likelihood)
