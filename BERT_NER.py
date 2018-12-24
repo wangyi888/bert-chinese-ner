@@ -56,7 +56,7 @@ flags.DEFINE_bool(
 )
 
 flags.DEFINE_integer(
-    "max_seq_length", 400,
+    "max_seq_length", 512,
     "The maximum total input sequence length after WordPiece tokenization."
 )
 
@@ -153,7 +153,7 @@ class DataProcessor(object):
             labels = []
             for line in f:
                 contends = line.strip()
-                print('contends',contends)
+                #print('contends',contends)
                 word = line.strip().split('\t')[0]
                 label = line.strip().split('\t')[-1]
                 #print('label',label)
@@ -162,7 +162,7 @@ class DataProcessor(object):
                     continue
                 #print('-1:',words[-1])
                 if len(contends) == 0 and words[-1] == '。':
-                    print('进来了吗')
+                    #print('进来了吗')
                     l = ' '.join([label for label in labels if len(label) > 0])
                     w = ' '.join([word for word in words if len(word) > 0])
                     lines.append([l, w])
@@ -172,7 +172,7 @@ class DataProcessor(object):
                 words.append(word)
                 labels.append(label)
             #print('-1:',words[-1])
-            print('lines',lines)
+            #print('lines',lines)
             return lines
 
 
@@ -218,7 +218,10 @@ class NerProcessor(DataProcessor):
                 'B-一次容留多人吸毒', 'I-一次容留多人吸毒', 'B-容留他人吸毒造成严重后果', 'I-容留他人吸毒造成严重后果', 'B-容留未成年人吸毒', 'I-容留未成年人吸毒',
                 'B-二年内曾因容留他人吸毒受过行政处罚', 'I-二年内曾因容留他人吸毒受过行政处罚', 'B-严重损害就诊人身体健康', 'I-严重损害就诊人身体健康',
                 'B-数额较大', 'I-数额较大', 'B-侵犯著作权罪-单位', 'I-侵犯著作权罪-单位', 'B-以牟利为目的容留他人吸毒', 'I-以牟利为目的容留他人吸毒',
-                'B-利用教唆特定人员进行毒品犯罪', 'I-利用教唆特定人员进行毒品犯罪']
+                'B-利用教唆特定人员进行毒品犯罪', 'I-利用教唆特定人员进行毒品犯罪',"X","[CLS]","[SEP]"]
+
+
+
 
 
 
@@ -237,13 +240,14 @@ def write_tokens(tokens,mode):
         path = os.path.join(FLAGS.output_dir, "token_"+mode+".txt")
         wf = open(path,'a')
         for token in tokens:
-            if token!="**NULL**":
+            if token!="[PAD]":
+            #if token!="**NULL**":
                 wf.write(token+'\n')
         wf.close()
 
 def convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer,mode):
     label_map = {}
-    for (i, label) in enumerate(label_list,1):
+    for (i, label) in enumerate(label_list,0):
         label_map[label] = i
     with open('./output/label2id.pkl','wb') as w:
         pickle.dump(label_map,w)
@@ -262,7 +266,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
             if m == 0:
                 labels.append(label_1)
             else:
-                labels.append("X")
+                labels.append("O")
         # print(tokens, labels)
     # tokens = tokenizer.tokenize(example.text)
     if len(tokens) >= max_seq_length - 1:
@@ -274,33 +278,50 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     ntokens.append("[CLS]")
     segment_ids.append(0)
     # append("O") or append("[CLS]") not sure!
-    label_ids.append(label_map["[CLS]"])
+    #label_ids.append(label_map["[CLS]"])
+    label_ids.append(label_map["O"])
     for i, token in enumerate(tokens):
         ntokens.append(token)
         segment_ids.append(0)
         label_ids.append(label_map[labels[i]])
-    ntokens.append("[SEP]")
-    segment_ids.append(0)
-    # append("O") or append("[SEP]") not sure!
-    label_ids.append(label_map["[SEP]"])
-    input_ids = tokenizer.convert_tokens_to_ids(ntokens)
-    input_mask = [1] * len(input_ids)
-    #label_mask = [1] * len(input_ids)
-    while len(input_ids) < max_seq_length:
-        input_ids.append(0)
+
+    input_mask = [1]*len(ntokens)
+    while len(ntokens) < max_seq_length-1:
+        ntokens.append("[PAD]")
         input_mask.append(0)
         segment_ids.append(0)
-        # we don't concerned about it!
-        label_ids.append(0)
-        ntokens.append("**NULL**")
-        #label_mask.append(0)
-    # print(len(input_ids))
+        label_ids.append(label_map["O"])
+    ntokens.append("[SEP]")
+    segment_ids.append(0)
+    input_mask.append(1)
+    label_ids.append(label_map["O"])
+    input_ids = tokenizer.convert_tokens_to_ids(ntokens)
+    # ntokens.append("[SEP]")
+    # segment_ids.append(0)
+    # # append("O") or append("[SEP]") not sure!
+    # # label_ids.append(label_map["[SEP]"])
+    #
+    # input_ids = tokenizer.convert_tokens_to_ids(ntokens)
+    # input_mask = [1] * len(input_ids)
+    # #label_mask = [1] * len(input_ids)
+    # while len(input_ids) < max_seq_length:
+    #     input_ids.append(0)
+    #     input_mask.append(0)
+    #     segment_ids.append(0)
+    #     # we don't concerned about it!
+    #     #label_ids.append(0)
+    #     label_ids.append(label_map["O"])
+    #     ntokens.append("**NULL**")
+    #     #label_mask.append(0)
+    # # print(len(input_ids))
+    # label_ids.append(label_map["O"])
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length
     assert len(label_ids) == max_seq_length
     #assert len(label_mask) == max_seq_length
-
+    #label_ids = label_ids[1:len(label_ids)-1]
+    #print(len(label_ids))
     if ex_index < 5:
         tf.logging.info("*** Example ***")
         tf.logging.info("guid: %s" % (example.guid))
@@ -391,9 +412,12 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         use_one_hot_embeddings=use_one_hot_embeddings
     )
     sequence_lengths = tf.reduce_sum(tf.sign(tf.abs(input_ids)),axis=1)
-    #sequence_lengths = tf.subtract(sequence_lengths,len(sequence_lengths)*[2])
+    #sequence_lengths -= 2
     output_layer = model.get_sequence_output()
+    #output_layer = output_layer[:,1:(output_layer.get_shape().as_list()[1])-1,:]
+    #labels = labels[:,1:labels.get_shape().as_list()[1]-1]
 
+    #print('来了老弟',output_layer.shape)
     hidden_size = output_layer.shape[-1].value
 
     output_weight = tf.get_variable(
@@ -409,6 +433,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
+
         logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, num_labels])
 
         log_likelihood, transition_params = crf_log_likelihood(inputs=logits,tag_indices=labels,sequence_lengths=sequence_lengths)
@@ -439,6 +464,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         input_mask = features["input_mask"]
         segment_ids = features["segment_ids"]
         label_ids = features["label_ids"]
+        #label_ids = label_ids[:,1:label_ids.shape[1]-1]
+        #print()
         #label_mask = features["label_mask"]
         is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
@@ -479,7 +506,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             def metric_fn(label_ids, logits):
             # def metric_fn(label_ids, logits):
 
+
                 #predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
+
                 pos_indices = [i for i in range(2,num_labels-4)]
                 precision = tf_metrics.precision(label_ids,predicts,num_labels,pos_indices,average="macro")
                 recall = tf_metrics.recall(label_ids,predicts,num_labels,pos_indices,average="macro")
@@ -560,7 +589,7 @@ def main(_):
 
     model_fn = model_fn_builder(
         bert_config=bert_config,
-        num_labels=len(label_list)+1,
+        num_labels=len(label_list),
         init_checkpoint=FLAGS.init_checkpoint,
         learning_rate=FLAGS.learning_rate,
         num_train_steps=num_train_steps,

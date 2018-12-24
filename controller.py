@@ -15,6 +15,7 @@ class IndexHandler(tornado.web.RequestHandler):
         self.render('index.html')
 
 class ResultHandler(tornado.web.RequestHandler):
+
     def post(self):
         content = self.get_argument('content').strip()
         if content[-1]!='。':
