@@ -189,7 +189,7 @@ class NerProcessor(DataProcessor):
 
     def get_test_examples(self,data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "thief_predict.txt")), "test")
+            self._read_data(os.path.join(data_dir, "test.txt")), "test")
 
 
     def get_labels(self):
@@ -238,7 +238,8 @@ def write_tokens(tokens,mode):
         path = os.path.join(FLAGS.output_dir, "token_"+mode+".txt")
         wf = open(path,'a')
         for token in tokens:
-            if token!="**NULL**":
+            if token!="[PAD]":
+            #if token!="**NULL**":
                 wf.write(token+'\n')
         wf.close()
 
@@ -281,26 +282,37 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         ntokens.append(token)
         segment_ids.append(0)
         label_ids.append(label_map[labels[i]])
-    #ntokens.append("[SEP]")
-    segment_ids.append(0)
-    # append("O") or append("[SEP]") not sure!
-    # label_ids.append(label_map["[SEP]"])
 
-    input_ids = tokenizer.convert_tokens_to_ids(ntokens)
-    input_mask = [1] * len(input_ids)
-    #label_mask = [1] * len(input_ids)
-    while len(input_ids) < max_seq_length-1:
-        input_ids.append(0)
+    input_mask = [1]*len(ntokens)
+    while len(ntokens) < max_seq_length-1:
+        ntokens.append("[PAD]")
         input_mask.append(0)
         segment_ids.append(0)
-        # we don't concerned about it!
-        #label_ids.append(0)
         label_ids.append(label_map["O"])
-        ntokens.append("**NULL**")
-        #label_mask.append(0)
-    # print(len(input_ids))
     ntokens.append("[SEP]")
+    segment_ids.append(0)
+    input_mask.append(1)
     label_ids.append(label_map["O"])
+    input_ids = tokenizer.convert_tokens_to_ids(ntokens)
+    # ntokens.append("[SEP]")
+    # segment_ids.append(0)
+    # # append("O") or append("[SEP]") not sure!
+    # # label_ids.append(label_map["[SEP]"])
+    #
+    # input_ids = tokenizer.convert_tokens_to_ids(ntokens)
+    # input_mask = [1] * len(input_ids)
+    # #label_mask = [1] * len(input_ids)
+    # while len(input_ids) < max_seq_length:
+    #     input_ids.append(0)
+    #     input_mask.append(0)
+    #     segment_ids.append(0)
+    #     # we don't concerned about it!
+    #     #label_ids.append(0)
+    #     label_ids.append(label_map["O"])
+    #     ntokens.append("**NULL**")
+    #     #label_mask.append(0)
+    # # print(len(input_ids))
+    # label_ids.append(label_map["O"])
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length
@@ -490,7 +502,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             
             def metric_fn(label_ids, logits):
             # def metric_fn(label_ids, logits):
-
+              
+                label_ids = label_ids[:,1:label_ids.shape[1]-1]
+                print('又来了老弟',label_ids.shape)
                 #predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
                 pos_indices = [i for i in range(1,num_labels)]
                 precision = tf_metrics.precision(label_ids,predicts,num_labels,pos_indices,average="macro")
