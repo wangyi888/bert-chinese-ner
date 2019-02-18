@@ -193,7 +193,7 @@ class NerProcessor(DataProcessor):
 
 
     def get_labels(self):
-
+        '''
         label_dir = os.path.join(FLAGS.data_dir,'labels.pkl')
         if not os.path.exists(label_dir):
             labels = []
@@ -202,27 +202,21 @@ class NerProcessor(DataProcessor):
                 with open(os.path.join(FLAGS.data_dir,file),encoding='utf-8') as f:
                     for i,line in enumerate(f.readlines()):
                         if len(line.split('\t')) > 1:
-                            label = line.split('\t')[0]
+                            label = line.split('\t')[1].strip()
                             if label not in labels:
                                 labels.append(label)
+            labels.append("X")
+            labels.append("[CLS]")
+            labels.append("[SEP]")
             pickle.dump(labels,open(label_dir,'wb'))
         else:
             labels = pickle.load(open(label_dir,'rb'))
         print('labels:',labels,'len(labels):',len(labels))
         return labels
-
+        '''
         #return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X","[CLS]","[SEP]"]
-         # return ['O', 'B-盗窃文物', 'B-偷拿家庭成员或者近亲属的财物，追究刑事责任的', 'B-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现代重要史迹和代表性建筑等）其他不可移动文物', 'B-盗窃罪-共犯', 'B-将国家、集体、他人所有并已经伐倒的树木窃为己有', 'B-数额较大', 'B-多次盗窃', 'B-数额巨大', 'B-邮政工作人员窃取邮件财物', 'I-公私财物', 'I-采用破坏性手段盗窃公私财物，造成其他财物损毁', 'B-以非法占有为目的', 'I-以非法占有为目的', 'B-盗窃数额提取', 'I-数额巨大', 'I-未成年人盗窃未遂或中止', 'I-数额特别巨大', 'B-未成年人盗窃数额较大，未超过三次，如实供述积极退赃，具有其他轻微情节',
-         #         'I-盗窃文物', 'I-盗窃罪-共犯', 'I-多次盗窃', 'B-入户盗窃', 'B-偷拿家庭成员或近亲属财物，获得谅解', 'B-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全', 'B-金额_盗窃金额', 'B-未成年人盗窃自己家庭或者近亲属财物', 'I-偷砍他人房前屋后、自留地种植的零星树木','B-采用破坏性手段盗窃公私财物，造成其他财物损毁', 'B-一般盗窃行为', 'I-金额_盗窃金额', 'I-秘密窃取', 'B-以牟利为目的，盗接他人通信线路、复制他人电信码号',
-         #         'I-未成年人盗窃数额较大，未超过三次，如实供述积极退赃，具有其他轻微情节', 'B-携带凶器盗窃', 'I-一般盗窃行为',
-         #         'B-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微', 'I-偷拿家庭成员或者近亲属的财物，追究刑事责任的',
-         #         'I-将国家、集体、他人所有并已经伐倒的树木窃为己有', 'I-未成年人盗窃自己家庭或者近亲属财物', 'I-盗窃数额提取', 'I-以牟利为目的，盗接他人通信线路、复制他人电信码号',
-         #         'I-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现>代重要史迹和代表性建筑等）其他不可移动文物',
-         #         'I-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现代重要史迹和代表性建筑等）其他不可移动文物', 'B-公私财物', 'I-未成年人起次要或辅助作用，或被胁迫盗窃数额较大，未超过三次，如实供述积极退赃',
-         #         'I-其他严重情节', 'B-盗窃信用卡并使用', 'B-其他严重情节', 'I-数额较大', 'I-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微',
-         #         'B-未成年人起次要或辅助作用，或被胁迫盗窃数额较大，未超过三次，如实供述积极退赃', 'I-盗窃信用卡并使用', 'I-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全',
-         #         'I-偷拿家庭成员或近亲属财物，获得谅解', 'B-数额特别巨大', 'B-偷砍他人房前屋后、自留地种植的零星树木', 'B-未成年人盗窃未遂或中止', 'I-邮政工作人员窃取邮件财物',
-         #         'B-秘密窃取', 'B-扒窃', 'I-入户盗窃', 'I-携带凶器盗窃', 'I-扒窃',"X","[CLS]","[SEP]"]
+        return ['I-盗窃文物', 'I-扒窃', 'I-未成年人起次要或辅助作用，或被胁迫盗窃数额较大，未超过三次，如实供述积极退赃', 'B-偷砍他人房前屋后、自留地种植的零星树木', 'B-携带凶器盗窃', 'B-将国家、集体、他人所有并已经伐倒的树木窃为己有', '[CLS]', 'B-公私财物', 'I-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现>代重要史迹和代表性建筑等）其他不可移动文物', 'I-偷拿家庭成员或近亲属财物，获得谅解', 'B-未成年人盗窃数额较大，未超过三次，如实供述积极退赃，具有其他轻微情节', 'I-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现代重要史迹和代表性建筑等）其他不可移动文物', 'B-以牟利为目的，盗接他人通信线路、复制他人电信码号', 'B-盗窃罪-共犯', 'B-数额特别巨大', 'X', 'B-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全', 'B-盗窃文物', 'I-盗窃信用卡并使用', 'I-数额特别巨大', 'B-数额较大', 'O', 'B-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微', 'B-偷拿家庭成员或近亲属财物，获得谅解', 'I-未成年人盗窃未遂或中止', 'B-邮政工作人员窃取邮件财物', 'I-携带凶器盗窃', 'B-数额巨大', 'B-未成年人起次要或辅助作用，或被胁迫盗窃数额较大，未超过三次，如实供述积极退赃', 'B-采用破坏性手段盗窃公私财物，造成其他财物损毁', '[SEP]', 'I-盗窃数额较大，行为人认罪悔罪，退赃退赔，被害人谅解，情节轻微', 'B-盗窃数额提取', 'B-扒窃', 'I-未成年人盗窃自己家庭或者近亲属财物', 'B-采用破坏性手段盗窃古文化遗址、古墓葬以外的（古建筑、石窟寺、石刻、壁画、近代现代重要史迹和代表性建筑等）其他不可移动文物', 'I-金额_盗窃金额', 'B-以非法占有为目的', 'I-邮政工作人员窃取邮件财物', 'I-以牟利为目的，盗接他人通信线路、复制他人电信码号', 'B-其他严重情节', 'B-多次盗窃', 'B-秘密窃取', 'I-以非法占有为目的', 'I-采用破坏性手段盗窃公私财物，造成其他财物损毁', 'I-盗窃罪-共犯', 'I-盗窃油气或者正在使用的油气设备，构成犯罪，但未危害公共安全', 'B-未成年人盗窃未遂或中止', 'I-未成年人盗窃数额较大，未超过三次，如实供述积极退赃，具有其他轻微情节', 'I-偷拿家庭成员或者近亲属的财物，追究刑事责任的', 'B-盗窃信用卡并使用', 'I-公私财物', 'I-数额巨大', 'I-偷砍他人房前屋后、自留地种植的零星树木', 'I-多次盗窃', 'B-未成年人盗窃自己家庭或者近亲属财物', 'B-偷拿家庭成员或者近亲属的财物，追究刑事责任的', 'I-入户盗窃', 'I-秘密窃取', 'I-其他严重情节', 'B-入户盗窃', 'I-盗窃数额提取', 'I-将国家、集体、他人所有并已经伐倒的树木窃为己有', 'I-数额较大', 'I-一般盗窃行为', 'B-金额_盗窃金额', 'B-一般盗窃行为']
+
         #return ['O', 'B-未取得医生执业资格的人非法行医', 'I-未取得医生执业资格的人非法行医',
         #         'B-未取得或以非法手段取得医师资格从事医疗活动', 'I-未取得或以非法手段取得医师资格从事医疗活动',
         #         'B-情节严重', 'I-情节严重', 'B-未取得乡村医生执业证书，从事乡村医疗活动', 'I-未取得乡村医生执业证书，从事乡村医疗活动',
@@ -262,7 +256,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     label_map = {}
     for (i, label) in enumerate(label_list,1):
         label_map[label] = i
-    with open('./output/label2id.pkl','wb') as w:
+    with open(os.path.join(FLAGS.output_dir,'label2id.pkl'),'wb') as w:
         pickle.dump(label_map,w)
     textlist = example.text.split(' ')
     labellist = example.label.split(' ')
@@ -595,8 +589,9 @@ def main(_):
 
     if FLAGS.do_train:
         train_file = os.path.join(FLAGS.output_dir, "train.tf_record")
-        filed_based_convert_examples_to_features(
-            train_examples, label_list, FLAGS.max_seq_length, tokenizer, train_file)
+        if not os.path.exists(train_file):
+            filed_based_convert_examples_to_features(
+                train_examples, label_list, FLAGS.max_seq_length, tokenizer, train_file)
         tf.logging.info("***** Running training *****")
         tf.logging.info("  Num examples = %d", len(train_examples))
         tf.logging.info("  Batch size = %d", FLAGS.train_batch_size)
@@ -634,10 +629,12 @@ def main(_):
                 writer.write("%s = %s\n" % (key, str(result[key])))
     if FLAGS.do_predict:
         token_path = os.path.join(FLAGS.output_dir, "token_test.txt")
-        with open('./output/label2id.pkl','rb') as rf:
+        with open(os.path.join(FLAGS.output_dir,'label2id.pkl'),'rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
             print('字典！！',id2label)
+            print('大家分厘卡撒酒疯了')
+            print(id2label[67])
         if os.path.exists(token_path):
             os.remove(token_path)
         predict_examples = processor.get_test_examples(FLAGS.data_dir)
